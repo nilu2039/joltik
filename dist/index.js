@@ -12,13 +12,16 @@ const type_graphql_1 = require("type-graphql");
 const mongoose_1 = __importDefault(require("mongoose"));
 const apollo_server_core_1 = require("apollo-server-core");
 const url_1 = __importDefault(require("./routes/url"));
+const path_1 = __importDefault(require("path"));
+const User_1 = require("./resolvers/User");
 const main = async () => {
     const app = (0, express_1.default)();
     const schema = await (0, type_graphql_1.buildSchema)({
-        resolvers: [Urls_1.UrlsResolver],
+        resolvers: [Urls_1.UrlsResolver, User_1.UserResolver],
         validate: false,
     });
     await mongoose_1.default.connect(process.env.MONGO_URL);
+    app.use(express_1.default.static(path_1.default.join(__dirname, "..", "public")));
     app.use("/", url_1.default);
     const apolloServer = new apollo_server_express_1.ApolloServer({
         schema,

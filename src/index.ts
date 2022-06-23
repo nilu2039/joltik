@@ -8,18 +8,27 @@ import mongoose from "mongoose"
 import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core"
 
 import urlRoutes from "./routes/url"
+import path from "path"
+import { UserResolver } from "./resolvers/User"
+// import { urlRedirect } from "./controllers/url"
 
 const main = async () => {
   const app = express()
 
   const schema = await buildSchema({
-    resolvers: [UrlsResolver],
+    resolvers: [UrlsResolver, UserResolver],
     validate: false,
   })
 
   await mongoose.connect(process.env.MONGO_URL)
 
+  app.use(express.static(path.join(__dirname, "..", "public")))
+
+  // console.log(path.join(__dirname, "..", "public"))
+
   app.use("/", urlRoutes)
+
+  // app.use("/:slug", urlRedirect)
 
   const apolloServer = new ApolloServer({
     schema,
