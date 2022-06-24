@@ -15,21 +15,106 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserResolver = void 0;
 const user_schema_1 = require("../schema/user.schema");
 const type_graphql_1 = require("type-graphql");
+const argon2_1 = require("argon2");
+let FieldError = class FieldError {
+};
+__decorate([
+    (0, type_graphql_1.Field)(),
+    __metadata("design:type", String)
+], FieldError.prototype, "field", void 0);
+__decorate([
+    (0, type_graphql_1.Field)(),
+    __metadata("design:type", String)
+], FieldError.prototype, "message", void 0);
+FieldError = __decorate([
+    (0, type_graphql_1.ObjectType)()
+], FieldError);
+let UserResponse = class UserResponse {
+};
+__decorate([
+    (0, type_graphql_1.Field)(() => [FieldError], { nullable: true }),
+    __metadata("design:type", Array)
+], UserResponse.prototype, "errors", void 0);
+__decorate([
+    (0, type_graphql_1.Field)(() => user_schema_1.User, { nullable: true }),
+    __metadata("design:type", Object)
+], UserResponse.prototype, "user", void 0);
+UserResponse = __decorate([
+    (0, type_graphql_1.ObjectType)()
+], UserResponse);
 let UserResolver = class UserResolver {
-    register(email, password) {
-        const user = user_schema_1.UserModel.create({
-            email,
-            password,
-        });
-        return user;
+    async login(email, password, { req }) {
+        const user = await user_schema_1.UserModel.findOne({ email });
+        if (!user) {
+            return {
+                errors: [{
+                        field: "email",
+                        message: "email doesn't exist"
+                    }]
+            };
+        }
+        const verifyPassword = await (0, argon2_1.verify)(user.password, password);
+        if (!verifyPassword) {
+            return {
+                errors: [{
+                        field: "password",
+                        message: "invalid password"
+                    }]
+            };
+        }
+        req.session.userId = user._id;
+        return { user };
+    }
+    async register(email, password, { req }) {
+        if (password === "") {
+            return {
+                errors: [
+                    {
+                        field: "hi",
+                        message: "hello",
+                    },
+                ],
+            };
+        }
+        const hashedPassword = await (0, argon2_1.hash)(password);
+        try {
+            const user = await user_schema_1.UserModel.create({
+                email,
+                password: hashedPassword,
+            });
+            req.session.userId = user._id;
+            return { user };
+        }
+        catch (error) {
+            console.log(error);
+            if (error.code === 11000) {
+                return {
+                    errors: [{
+                            field: "email",
+                            message: "email already exists"
+                        }]
+                };
+            }
+        }
+        return null;
     }
 };
 __decorate([
-    (0, type_graphql_1.Mutation)(() => user_schema_1.User, { nullable: true }),
+    (0, type_graphql_1.Mutation)(() => UserResponse, { nullable: true }),
     __param(0, (0, type_graphql_1.Arg)("email")),
     __param(1, (0, type_graphql_1.Arg)("password")),
+    __param(2, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [String, String, Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "login", null);
+__decorate([
+    (0, type_graphql_1.Mutation)(() => UserResponse, { nullable: true }),
+    __param(0, (0, type_graphql_1.Arg)("email")),
+    __param(1, (0, type_graphql_1.Arg)("password")),
+    __param(2, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, Object]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "register", null);
 UserResolver = __decorate([

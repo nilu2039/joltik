@@ -16,6 +16,11 @@ export class Url extends TimeStamps {
   @prop()
   public slug: string
 
+
+  @Field()
+  @prop({ required: true })
+  public userId: string
+
   @Field()
   @prop({ default: Date.now() })
   public createdAt: Date
