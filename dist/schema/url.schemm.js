@@ -35,6 +35,11 @@ __decorate([
 ], Url.prototype, "slug", void 0);
 __decorate([
     (0, type_graphql_1.Field)(),
+    (0, typegoose_1.prop)({ required: true }),
+    __metadata("design:type", String)
+], Url.prototype, "userId", void 0);
+__decorate([
+    (0, type_graphql_1.Field)(),
     (0, typegoose_1.prop)({ default: Date.now() }),
     __metadata("design:type", Date)
 ], Url.prototype, "createdAt", void 0);

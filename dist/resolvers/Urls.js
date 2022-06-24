@@ -16,6 +16,32 @@ exports.UrlsResolver = void 0;
 const url_schemm_1 = require("../schema/url.schemm");
 const type_graphql_1 = require("type-graphql");
 const nanoid_1 = require("nanoid");
+let UrlFieldError = class UrlFieldError {
+};
+__decorate([
+    (0, type_graphql_1.Field)(),
+    __metadata("design:type", String)
+], UrlFieldError.prototype, "field", void 0);
+__decorate([
+    (0, type_graphql_1.Field)(),
+    __metadata("design:type", String)
+], UrlFieldError.prototype, "message", void 0);
+UrlFieldError = __decorate([
+    (0, type_graphql_1.ObjectType)()
+], UrlFieldError);
+let UrlResponse = class UrlResponse {
+};
+__decorate([
+    (0, type_graphql_1.Field)(() => url_schemm_1.Url, { nullable: true }),
+    __metadata("design:type", url_schemm_1.Url)
+], UrlResponse.prototype, "url", void 0);
+__decorate([
+    (0, type_graphql_1.Field)(() => [UrlFieldError], { nullable: true }),
+    __metadata("design:type", Array)
+], UrlResponse.prototype, "errors", void 0);
+UrlResponse = __decorate([
+    (0, type_graphql_1.ObjectType)()
+], UrlResponse);
 let UrlsResolver = class UrlsResolver {
     hello() {
         return "hello world";
@@ -25,14 +51,28 @@ let UrlsResolver = class UrlsResolver {
         console.log(urls);
         return urls;
     }
-    async createShortUrl(url) {
+    async createShortUrl({ req }, url) {
         const slug = (0, nanoid_1.nanoid)();
-        const data = await url_schemm_1.UrlModel.create({
-            url,
-            slug,
-        });
-        console.log(data);
-        return data;
+        if (!req.session.userId) {
+            return {
+                errors: [{
+                        field: "user",
+                        message: "user not logged in"
+                    }]
+            };
+        }
+        try {
+            const short_url = await url_schemm_1.UrlModel.create({
+                url,
+                slug,
+                userId: req.session.userId
+            });
+            return { url: short_url };
+        }
+        catch (error) {
+            console.log(error);
+            return null;
+        }
     }
 };
 __decorate([
@@ -48,10 +88,11 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UrlsResolver.prototype, "getUrls", null);
 __decorate([
-    (0, type_graphql_1.Mutation)(() => url_schemm_1.Url),
-    __param(0, (0, type_graphql_1.Arg)("url")),
+    (0, type_graphql_1.Mutation)(() => UrlResponse),
+    __param(0, (0, type_graphql_1.Ctx)()),
+    __param(1, (0, type_graphql_1.Arg)("url")),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], UrlsResolver.prototype, "createShortUrl", null);
 UrlsResolver = __decorate([

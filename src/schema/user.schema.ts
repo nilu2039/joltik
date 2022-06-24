@@ -1,7 +1,6 @@
 import { getModelForClass, prop } from "@typegoose/typegoose"
 import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses"
 import { Field, ObjectType } from "type-graphql"
-import { Types } from "mongoose"
 
 @ObjectType()
 class UserUrl {
@@ -20,13 +19,12 @@ class UserUrl {
 @ObjectType()
 export class User extends TimeStamps {
   @Field(() => String)
-  public _id: Types.ObjectId
+  public _id: string
 
   @Field()
-  @prop()
+  @prop({ unique: true })
   public email: string
 
-  @Field()
   @prop()
   public password: string
 

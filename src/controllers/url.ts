@@ -15,10 +15,10 @@ export const urlRedirect = async (
     })
 
     if (url) {
-      // console.log(url.url)
+      // console.log(url?.url)
       res.redirect(url.url)
     } else {
-      res.sendFile(path.join(__dirname, "..", "..", "404.html"))
+      return res.sendFile(path.join(__dirname, "..", "..", "404.html"))
     }
   }
   next()

@@ -13,7 +13,6 @@ exports.UserModel = exports.User = void 0;
 const typegoose_1 = require("@typegoose/typegoose");
 const defaultClasses_1 = require("@typegoose/typegoose/lib/defaultClasses");
 const type_graphql_1 = require("type-graphql");
-const mongoose_1 = require("mongoose");
 let UserUrl = class UserUrl {
 };
 __decorate([
@@ -37,15 +36,14 @@ let User = class User extends defaultClasses_1.TimeStamps {
 };
 __decorate([
     (0, type_graphql_1.Field)(() => String),
-    __metadata("design:type", mongoose_1.Types.ObjectId)
+    __metadata("design:type", String)
 ], User.prototype, "_id", void 0);
 __decorate([
     (0, type_graphql_1.Field)(),
-    (0, typegoose_1.prop)(),
+    (0, typegoose_1.prop)({ unique: true }),
     __metadata("design:type", String)
 ], User.prototype, "email", void 0);
 __decorate([
-    (0, type_graphql_1.Field)(),
     (0, typegoose_1.prop)(),
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);

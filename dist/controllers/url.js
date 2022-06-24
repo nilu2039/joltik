@@ -15,7 +15,7 @@ const urlRedirect = async (req, res, next) => {
             res.redirect(url.url);
         }
         else {
-            res.sendFile(path_1.default.join(__dirname, "..", "..", "404.html"));
+            return res.sendFile(path_1.default.join(__dirname, "..", "..", "404.html"));
         }
     }
     next();
